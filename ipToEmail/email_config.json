@@ -1,0 +1,7 @@
+{
+  "mail_host": "smtp.163.com",
+  "mail_user": "KOKOTAO",
+  "mail_pass": "XXXXXXX",
+  "sender": "XXXX@163.com",
+  "receivers": ["6666666@qq.com", "XXX@163.com"]
+}
