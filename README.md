@@ -135,3 +135,4 @@ message = MIMEMultipart()
 **另外**还抓取了最近的热榜新闻这样每天早晨开机顺道能看一下最近热闻啦！
 
 ![image](https://github.com/kokotao/ipToEmail/assets/46886876/4a7e94d5-fa86-41ab-9918-464af79ad958)
+另外：此程序仅供参考学习使用
