@@ -30,9 +30,9 @@ if result:
         for i, ip in enumerate(ip_addresses, start=1):
             ip_addr += f"<div style='font-family: Arial, sans-serif; font-size: 14px; margin-bottom: 5px;'><strong>ipv6_{i}:</strong> {ip}</div>"
     else:
-        ip_addr = "<div>No IP address found.</div>"
+        ip_addr += "<div>No IPV6 address found.</div>"
 else:
-    ip_addr = "<div>No match found.</div>"
+    ip_addr += "<div>No IPV6 match found.</div>"
 
 # 配置文件名 留存前后网卡ip地址信息
 config_file_name = '.historicalIP.json'
@@ -54,7 +54,6 @@ formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
 title = formatted_time + ':update_addrIp'  # The subject of the message
 html_message = ''  # The content of message
 
-
 def generate_news():
     try:
         response = requests.get('https://r.inews.qq.com/gw/event/pc_hot_ranking_list?ids_hash=&offset=0&page_size=50')
@@ -62,14 +61,19 @@ def generate_news():
         idlist = data.get("idlist", [])
         newList = idlist[0].get('newslist', [])
         newsContent = ''
+        newsContentTxt = ''
         for i, item in enumerate(newList, start=0):
             if i >= 1:
                 title = item.get('title')
                 url = item.get('url')
                 nlpAbstract = item.get('nlpAbstract')
                 ranking = item.get('ranking')
-                newsContent += f"<div style='font-family: Arial, sans-serif; font-size: 15px; margin-bottom: 5px;'><strong></strong>热度排行：{ranking} <a href='{url}' style='color: #0000FF; text-decoration: none;'>{title}</a></br><span style='font-size=10px;color:#a3aaaf'>{nlpAbstract}</span></div>"
+                newsContentTxt += f"{title}\n{nlpAbstract}\n"
+                newsContent += f"<div style='font-family: Arial, sans-serif; font-size: 15px; margin-bottom: 5px;'><strong></strong>热度排行：{ranking} <a href='{url}' style='color: #0000FF; text-decoration: none;'>{title}<br></a><span style='font-size=10px;color:#a3aaaf'>{nlpAbstract}</span></br></div>"
         print(f"获取此刻新闻排行成功！总共: {str(i)}条")
+        if newsContentTxt:
+            with open('新闻副本.txt','w', encoding='utf-8') as file:
+                file.write(newsContentTxt)
         return newsContent
     except Exception as e:
         print(f"Error fetching news ids: {str(e)}")
@@ -112,10 +116,10 @@ def sendEmail():
     part.add_header("Content-Disposition", f"attachment; filename= IpDetail.txt")
     message.attach(part)
     #添加附件2
-    # att1 = MIMEText(open('.global_ip.json', 'rb').read(), 'base64', 'utf-8')  # 文件路径是这个代码附近的文件
-    # att1["Content-Type"] = 'application/octet-stream'
-    # att1["Content-Disposition"] = 'attachment; filename=".global_ip.json"'
-    # message.attach(att1)
+    att1 = MIMEText(open('新闻副本.txt', 'rb').read(), 'base64', 'utf-8')  # 文件路径是这个代码附近的文件
+    att1["Content-Type"] = 'application/octet-stream'
+    att1["Content-Disposition"] = 'attachment; filename="newContentCopy.txt"'
+    message.attach(att1)
     try:
         smtpObj = smtplib.SMTP_SSL(mail_host, 465)  # 启用SSL发信, 端口一般是465
         smtpObj.login(mail_user, mail_pass)  # 登录验证
@@ -145,6 +149,7 @@ if (check_configfile_exist()['file_exist'] & check_configfile_exist()['file_writ
                          <p color:red>ip已经是最新的啦!</p>
                            <p style="color:#0000ff8c;text-align: center;font-size: 18px;"><strong>新闻热度排行榜</strong></p>
                             <div style="margin-bottom: 5px;padding: 2px;margin: 2px;background: #f0f8ff6e;">{newsStr}</div>
+                            <strong>ipv4:</strong> {result2}</div>
                          </body>
                        </html>
                        """
